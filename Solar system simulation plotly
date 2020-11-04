@@ -49,7 +49,7 @@ def layout(app):
                     marks = {i: '{}'.format(t[i]) for i in range(len(t))},
                     value = 4),
                 dcc.Input(id = 'num_iteration', placeholder='Enter value of iteration...',
-                    type='number',  debounce=True, value = 25),
+                    type='number',  debounce=True, value = 250),
                 html.P('Each click make choose number of iteration', style = {'color':text_color}),
                 html.A(
                     html.Button(
@@ -62,6 +62,11 @@ def layout(app):
                 ),
                 html.Hr(style = {'width': '500px', 'color':main_color},),
             ]),
+            dcc.RadioItems(id = 'zob',
+            options = [{'label': i, 'value': i} for i in ['Animation', 'Scatter']],
+            value = 'Scatter', labelStyle={'display': 'inline-block'},
+            style={'textAlign': 'center','margin-top': '15px', 'color':text_color}),
+            html.Hr(style = {'width': '500px'}),
         ]),
         html.Div(children = [
             dcc.Graph(id="graph", style={'height': '890px'}),
@@ -104,18 +109,19 @@ def callbacks(app):
         return row
     @app.callback(
         Output('graph', 'figure'),
-        [Input('start', 'n_clicks')],
+        [Input('start', 'n_clicks'),
+        Input('zob', 'value')],
         [State('num_planet', 'value'),
         State('num_iteration', 'value'),
         State('pozition', 'value'),
         State('time', 'value'),
         State('starting_point', 'data')
         ])
-    def display_graph(start, num_planet, num, poziton, time, starting_point):
+    def display_graph(start, zob, num_planet, num, poziton, time, starting_point):
         parametr = []
         mass = []
         planets = []
-        ro = 0
+        ro = 0 
         if poziton == "rand":
             ro = 10**12
             for i in range(num_planet):
@@ -142,7 +148,7 @@ def callbacks(app):
                 parametr.append(v)
                 planets.append('Planeta {}'.format(i))
         elif poziton == "solar":
-            ro = 5*10**9
+            ro = 8*10**11
             planets = ['Slunce', 'Merkur', 'Venuše', 'Země', 'Mars', 'Jupite', 'Saturn', 
                 'Uran', 'Neptun']
             mass = [1.989*10**30, 3.287*10**23, 4.867*10**24, 5.972*10**24, 
@@ -202,24 +208,41 @@ def callbacks(app):
                     parametr[i][1][0].pop(k)
                     parametr[i][1][1].pop(k)
         delka = len(parametr[0][1][0])
-        dict = {}
-        x, y, z, it, planet, mass2 = [], [], [], [], [], []
-        for i in range(delka):
+        if zob == 'Animation':
+            dict = {}
+            x, y, z, it, planet, mass2 = [], [], [], [], [], []
+            for i in range(delka):
+                for j in range(len(parametr)):
+                    x.append(parametr[j][1][0][i][0])
+                    y.append(parametr[j][1][0][i][1])
+                    z.append(parametr[j][1][0][i][2])
+                    it.append(i)
+                    planet.append(planets[j])
+                    mass2.append(mass[j])
+            dict.update({'Name': planet, 'Mass': mass2, 'X-loc.':x, 'Y-loc.':y, 'Z-loc.':z, 
+                'iteration':it})
+            df = pd.DataFrame(dict)
+            fig = px.scatter_3d(df, x = 'X-loc.', y = 'Y-loc.', z = 'Z-loc.', #size = 'Mass',
+                color = 'Name', hover_name = 'Name', animation_frame = 'iteration', 
+                size_max = 30, range_x = [ - ro, ro], range_y = [ - ro, ro], range_z = [ - ro, ro])
+            #fig.add_trace(go.Scatter3d(dict, x = 'X-loc.', y = 'Y-loc.', z = 'Z-loc.' ,mode='lines'))
+            return fig
+        else:
+            fig = go.Figure(data=[])
+            x, y, z, mass2 = [], [], [], []
             for j in range(len(parametr)):
-                x.append(parametr[j][1][0][i][0])
-                y.append(parametr[j][1][0][i][1])
-                z.append(parametr[j][1][0][i][2])
-                it.append(i)
-                planet.append(planets[j])
+                x.append(parametr[j][1][0][delka - 1][0])
+                y.append(parametr[j][1][0][delka - 1][1])
+                z.append(parametr[j][1][0][delka - 1][2])
                 mass2.append(mass[j])
-        dict.update({'Name': planet, 'Mass': mass2, 'X-loc.':x, 'Y-loc.':y, 'Z-loc.':z, 
-            'iteration':it})
-        df = pd.DataFrame(dict)
-        fig = px.scatter_3d(df, x = 'X-loc.', y = 'Y-loc.', z = 'Z-loc.', #size = 'Mass',
-            color = 'Name', hover_name = 'Name', animation_frame = 'iteration', 
-            size_max = 30, range_x = [ - ro, ro], range_y = [ - ro, ro], range_z = [ - ro, ro])
-        #fig.add_trace(go.Scatter3d(dict, x = 'X-loc.', y = 'Y-loc.', z = 'Z-loc.' ,mode='lines'))
-        return fig
+                X, Y, Z = [], [], []
+                for i in range(delka):
+                    X.append(parametr[j][1][0][i][0])
+                    Y.append(parametr[j][1][0][i][1])
+                    Z.append(parametr[j][1][0][i][2])
+                fig.add_trace(go.Scatter3d(x = X, y = Y, z = Z, mode = "lines"))
+            fig.add_trace(go.Scatter3d(x = x, y = y, z = z, mode = "markers"))
+            return fig
     
 def force_v(params, planet, num_planet):
     fv = []
