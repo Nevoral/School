@@ -50,7 +50,7 @@ def layout(app):
                     value = 4),
                 dcc.Input(id = 'num_iteration', placeholder='Enter value of iteration...',
                     type='number',  debounce=True, value = 250),
-                html.P('Each click make choose number of iteration', style = {'color':text_color}),
+                html.P('Start your simulation', style = {'color':text_color}),
                 html.A(
                     html.Button(
                         id='start',
@@ -209,7 +209,7 @@ def callbacks(app):
                     parametr[i][1][1].pop(k)
         delka = len(parametr[0][1][0])
         if zob == 'Animation':
-            dict = {}
+            """ dok = {}
             x, y, z, it, planet, mass2 = [], [], [], [], [], []
             for i in range(delka):
                 for j in range(len(parametr)):
@@ -219,13 +219,45 @@ def callbacks(app):
                     it.append(i)
                     planet.append(planets[j])
                     mass2.append(mass[j])
-            dict.update({'Name': planet, 'Mass': mass2, 'X-loc.':x, 'Y-loc.':y, 'Z-loc.':z, 
+            dok.update({'Name': planet, 'Mass': mass2, 'X-loc.':x, 'Y-loc.':y, 'Z-loc.':z, 
                 'iteration':it})
-            df = pd.DataFrame(dict)
+            df = pd.DataFrame(dok)
             fig = px.scatter_3d(df, x = 'X-loc.', y = 'Y-loc.', z = 'Z-loc.', #size = 'Mass',
                 color = 'Name', hover_name = 'Name', animation_frame = 'iteration', 
-                size_max = 30, range_x = [ - ro, ro], range_y = [ - ro, ro], range_z = [ - ro, ro])
-            #fig.add_trace(go.Scatter3d(dict, x = 'X-loc.', y = 'Y-loc.', z = 'Z-loc.' ,mode='lines'))
+                size_max = 30, range_x = [ - ro, ro], range_y = [ - ro, ro], range_z = [ - ro, ro]) """
+            layout = dict(
+                hovermode = "closest",
+                updatemenus = [dict(type = "buttons", buttons = [dict(label = "Play",
+                    method = "animate", args = [None])])])
+            x, y, z, mass2 = [], [], [], []
+            kom = []
+            for j in range(len(parametr)):
+                """ x.append(parametr[j][1][0][delka - 1][0])
+                y.append(parametr[j][1][0][delka - 1][1])
+                z.append(parametr[j][1][0][delka - 1][2]) """
+                mass2.append(mass[j])
+                X, Y, Z = [], [], []
+                for i in range(delka):
+                    X.append(parametr[j][1][0][i][0])
+                    Y.append(parametr[j][1][0][i][1])
+                    Z.append(parametr[j][1][0][i][2])
+                trace = dict(type = 'scatter3d', x = X, y = Y, z = Z, mode = 'lines')
+                kom.append(trace)
+            for i in range(delka):
+                x1, y1, z1 = [], [], []
+                for j in range(len(parametr)):
+                    x1.append(parametr[j][1][0][i][0])
+                    y1.append(parametr[j][1][0][i][1])
+                    z1.append(parametr[j][1][0][i][2])
+                x.append(x1)
+                y.append(y1)
+                z.append(z1)
+            traceinit = dict(type = 'scatter3d', x = x[0], y = y[0], z = z[0], 
+                mode = 'markers', marker = dict(size = 10, color = mass2, colorscale = 'Viridis',))
+            kom.append(traceinit)
+            frames = [dict(data = [dict(x = x[k], y = y[k], z = z[k])], traces = [len(parametr)])
+                 for k in range(delka)]
+            fig = dict(data = kom, layout = layout, frames = frames)
             return fig
         else:
             fig = go.Figure(data=[])
