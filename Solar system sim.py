@@ -209,32 +209,13 @@ def callbacks(app):
                     parametr[i][1][1].pop(k)
         delka = len(parametr[0][1][0])
         if zob == 'Animation':
-            """ dok = {}
-            x, y, z, it, planet, mass2 = [], [], [], [], [], []
-            for i in range(delka):
-                for j in range(len(parametr)):
-                    x.append(parametr[j][1][0][i][0])
-                    y.append(parametr[j][1][0][i][1])
-                    z.append(parametr[j][1][0][i][2])
-                    it.append(i)
-                    planet.append(planets[j])
-                    mass2.append(mass[j])
-            dok.update({'Name': planet, 'Mass': mass2, 'X-loc.':x, 'Y-loc.':y, 'Z-loc.':z, 
-                'iteration':it})
-            df = pd.DataFrame(dok)
-            fig = px.scatter_3d(df, x = 'X-loc.', y = 'Y-loc.', z = 'Z-loc.', #size = 'Mass',
-                color = 'Name', hover_name = 'Name', animation_frame = 'iteration', 
-                size_max = 30, range_x = [ - ro, ro], range_y = [ - ro, ro], range_z = [ - ro, ro]) """
-            layout = dict(
-                hovermode = "closest",
-                updatemenus = [dict(type = "buttons", buttons = [dict(label = "Play",
-                    method = "animate", args = [None])])])
+            layout = dict(xaxis = dict(range = [- ro, ro], autorange = False, zeroline = False),
+                yaxis = dict(range = [- ro, ro], autorange = False, zeroline = False), 
+                hovermode = "closest", updatemenus = [dict(type = "buttons", 
+                    buttons = [dict(label = "Play",method = "animate", args = [None])])])
             x, y, z, mass2 = [], [], [], []
             kom = []
             for j in range(len(parametr)):
-                """ x.append(parametr[j][1][0][delka - 1][0])
-                y.append(parametr[j][1][0][delka - 1][1])
-                z.append(parametr[j][1][0][delka - 1][2]) """
                 mass2.append(mass[j])
                 X, Y, Z = [], [], []
                 for i in range(delka):
