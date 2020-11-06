@@ -148,7 +148,7 @@ def callbacks(app):
                 parametr.append(v)
                 planets.append('Planeta {}'.format(i))
         elif poziton == "solar":
-            ro = 8*10**11
+            ro = 5*10**12
             planets = ['Slunce', 'Merkur', 'Venuše', 'Země', 'Mars', 'Jupite', 'Saturn', 
                 'Uran', 'Neptun']
             mass = [1.989*10**30, 3.287*10**23, 4.867*10**24, 5.972*10**24, 
